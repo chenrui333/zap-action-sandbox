@@ -19,4 +19,4 @@ jobs:
         run: |
           zap-baseline.py -t https://selfservice-dev.pathfinder.gov.bc.ca/ -g .github/workflows/zap-rules/rules.tsv -w zapdevreport.md || echo 0
           echo "::set-output name=text::$(/zap/wrk/zapdevreport.md)";
-          curl -X POST --data-urlencode "payload={\"text\": \"$(/zap/wrk/zapdevreport.md)\"}" https://hooks.slack.com/services/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
+          cat /zap/wrk/zapdevreport.md | curl -X POST --data-urlencode "payload={\"text\": \"$(</dev/stdin)\"}" https://hooks.slack.com/services/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
