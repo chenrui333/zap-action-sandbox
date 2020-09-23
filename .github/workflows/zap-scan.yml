@@ -19,4 +19,7 @@ jobs:
         run: |
           zap-baseline.py -t https://selfservice-dev.pathfinder.gov.bc.ca/ -g .github/workflows/zap-rules/rules.tsv -w zapdevreport.md || echo 0
           echo "::set-output name=text::$(<zapdevreport.md)";
+          echo "cat the payload"
+          cat zapdevreport.md
+          echo "curl post"
           cat zapdevreport.md | curl -X POST --data-urlencode "payload={\"text\": \"$(</dev/stdin)\"}" ${{ secrets.ZAP_SCAN_WEBHOOK_URL }}
