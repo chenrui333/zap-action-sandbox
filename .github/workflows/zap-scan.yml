@@ -1,0 +1,44 @@
+name: ZAP
+
+on: push
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    container:
+      image: owasp/zap2docker-stable
+      options: --user root -v ${{ github.workspace }}:/zap/wrk/:rw
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          pwd && ls -l
+          pip install --upgrade pip github3.py
+          pip3 install --upgrade pip github3.py
+      - name: run zap baseline scan
+        id: scan
+        run: |
+          zap-baseline.py -t https://selfservice-dev.pathfinder.gov.bc.ca/ -g .github/workflows/zap-rules/rules.tsv -w zapdevreport.md || echo 0
+          echo "::set-output name=text::$(/zap/wrk/zapdevreport.md)";
+      - run: |
+          pwd && ls -l /zap/wrk/
+          cat /zap/wrk/zapdevreport.md
+          apt-get update && apt-get install -q -y bsd-mailx
+          echo "ZAP Scan Report" | mailx -s "ZAP Scan Report" -r "rui@meetup.com" -a /zap/wrk/zapdevreport.md rui@meetup.com
+
+      # - uses: actions/github-script@v2
+      #   env:
+      #     PLAN: "${{ steps.scan.outputs.text }}"
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const output = `<details><summary>ZAP Scan result</summary>
+      #       \`\`\`${process.env.PLAN}\`\`\`
+      #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*
+      #       </details>`;
+
+      #       github.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
