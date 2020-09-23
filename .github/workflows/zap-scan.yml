@@ -25,20 +25,20 @@ jobs:
           apt-get update && apt-get install -q -y bsd-mailx
           echo "ZAP Scan Report" | mailx -s "ZAP Scan Report" -r "rui@meetup.com" -a /zap/wrk/zapdevreport.md rui@meetup.com
 
-      # - uses: actions/github-script@v2
-      #   env:
-      #     PLAN: "${{ steps.scan.outputs.text }}"
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       const output = `<details><summary>ZAP Scan result</summary>
-      #       \`\`\`${process.env.PLAN}\`\`\`
-      #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*
-      #       </details>`;
+      - uses: actions/github-script@v2
+        env:
+          PLAN: "${{ steps.scan.outputs.text }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `<details><summary>ZAP Scan result</summary>
+            \`\`\`${process.env.PLAN}\`\`\`
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*
+            </details>`;
 
-      #       github.issues.createComment({
-      #         issue_number: context.issue.number,
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         body: output
-      #       })
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
